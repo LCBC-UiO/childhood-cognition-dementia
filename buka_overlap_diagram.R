@@ -5,6 +5,13 @@
 
 library(dplyr)
 
+# 0. Where to put the PDFs ----------------------------------------------------
+# Set this to whatever you like, e.g. the same folder as your R script.
+# The default just uses the current working directory (run getwd() to see it).
+out_dir <- getwd()
+cat("Figures will be written to:", out_dir, "\n")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
 # 1. Build a 0/1 indicator matrix of the three case types ---------------------
 overlap_df <- cox_ugu1948 %>%
   transmute(
@@ -30,7 +37,8 @@ library(UpSetR)
 
 upset_input <- as.data.frame(overlap_df)
 
-pdf("Figure_Sx_overlap_upset.pdf", width = 7, height = 4.5)
+upset_pdf <- file.path(out_dir, "Figure_Sx_overlap_upset.pdf")
+pdf(upset_pdf, width = 7, height = 4.5)
 upset(
   upset_input,
   sets = c("Any CVD", "Diabetes", "Dementia"),
@@ -41,6 +49,7 @@ upset(
   text.scale = c(1.3, 1.2, 1.2, 1.0, 1.2, 1.1)
 )
 dev.off()
+cat("Wrote:", upset_pdf, "\n")
 
 
 # 3b. Proportional Euler diagram (alternative) --------------------------------
@@ -61,7 +70,8 @@ eul_vec <- overlap_counts %>%
 
 fit <- euler(eul_vec, shape = "ellipse")
 
-pdf("Figure_Sx_overlap_euler.pdf", width = 6, height = 5)
+euler_pdf <- file.path(out_dir, "Figure_Sx_overlap_euler.pdf")
+pdf(euler_pdf, width = 6, height = 5)
 plot(fit,
      quantities = list(fontsize = 10),
      labels     = list(fontsize = 11),
@@ -69,3 +79,4 @@ plot(fit,
      edges      = TRUE,
      main       = "Overlap of dementia, any CVD, and diabetes cases\n(1948 cohort, n=10,539)")
 dev.off()
+cat("Wrote:", euler_pdf, "\n")
